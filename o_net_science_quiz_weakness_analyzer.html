@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O-NET Sci-Master | ระบบติววิทย์และวิเคราะห์จุดอ่อน</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font (Mitr & Noto Sans Thai) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Canvas Confetti for Completion Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            300: '#7dd3fc',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#095196',
+                        },
+                        cute: {
+                            pink: '#FF9EAA',
+                            yellow: '#FFE5AD',
+                            green: '#AA8B56',
+                            mint: '#A0E7E5',
+                            purple: '#B46060',
+                            lavender: '#E8A0BF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Prompt', 'Mitr', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .bounce-hover:hover {
+            transform: translateY(-3px);
+            transition: all 0.2s ease;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border: 2px solid #f1f5f9;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.15), 0 8px 10px -6px rgba(14, 165, 233, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('home')">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-flask-vial text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-sky-600 to-indigo-600 bg-clip-text text-transparent">O-NET Sci-Master</h1>
+                    <p class="text-xs text-slate-500 font-medium">ติววิทย์ O-NET & วิเคราะห์จุดอ่อน</p>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="flex items-center gap-2">
+                <button onclick="switchView('home')" class="px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition flex items-center gap-2">
+                    <i class="fa-solid fa-house text-sky-500"></i> <span class="hidden sm:inline">หน้าแรก</span>
+                </button>
+                <button onclick="startFullTest()" class="px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-500"></i> <span class="hidden sm:inline">ทำข้อสอบ</span>
+                </button>
+                <button onclick="switchView('dashboard')" class="px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-purple-500"></i> <span class="hidden sm:inline">วิเคราะห์จุดอ่อน</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- VIEW 1: HOME PAGE -->
+        <section id="view-home" class="space-y-8">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 p-8 sm:p-12 text-white shadow-xl">
+                <div class="absolute -right-10 -bottom-10 opacity-20 text-9xl">
+                    <i class="fa-solid fa-atom"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider text-white border border-white/30 inline-block">
+                        ✨ สำหรับเตรียมสอบ O-NET วิทยาศาสตร์
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold leading-tight">
+                        เปลี่ยน "จุดอ่อน" ให้เป็น "จุดแข็ง"<br>ด้วยระบบติววิทย์ฉลาดเลือก! 🚀
+                    </h2>
+                    <p class="text-sky-50 text-sm sm:text-base opacity-90 leading-relaxed">
+                        ลองทำควิซข้อสอบ O-NET วิทยาศาสตร์ครบทั้ง 4 หมวด (ฟิสิกส์ เคมี ชีวะ โลกและอวกาศ) ตรวจผลทันที พร้อม AI Dashboard ช่วยชี้เป้าเนื้อหาที่ต้องอ่านเพิ่มด่วน!
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="startFullTest()" class="px-6 py-3.5 bg-white text-sky-600 rounded-2xl font-bold text-base shadow-lg hover:bg-sky-50 hover:scale-105 active:scale-95 transition flex items-center gap-2">
+                            <i class="fa-solid fa-play"></i> เริ่มตะลุยโจทย์เลย
+                        </button>
+                        <button onclick="switchView('dashboard')" class="px-6 py-3.5 bg-slate-900/40 backdrop-blur-md text-white rounded-2xl font-semibold text-base hover:bg-slate-900/60 transition flex items-center gap-2 border border-white/20">
+                            <i class="fa-solid fa-chart-line"></i> ดูสถิติจุดอ่อน
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Categories Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-shapes text-sky-500"></i> เลือกติวแยกตามหมวดวิชา
+                    </h3>
+                    <span class="text-xs font-medium text-slate-500">4 หมวดสาระสำคัญ</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Category Card 1: Physics -->
+                    <div onclick="startCategoryTest('physics')" class="glass-card p-5 rounded-2xl cursor-pointer bounce-hover border-l-4 border-l-sky-500 custom-shadow group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 bg-sky-50 text-sky-600 rounded-full font-medium">ฟิสิกส์</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">วิทยาศาสตร์กายภาพ (ฟิสิกส์)</h4>
+                        <p class="text-xs text-slate-500 mb-3">แรง, การเคลื่อนที่, พลังงาน,คลื่น และไฟฟ้า</p>
+                        <div class="flex items-center justify-between text-xs font-semibold text-sky-600">
+                            <span>ฝึกทำโจทย์</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <!-- Category Card 2: Chemistry -->
+                    <div onclick="startCategoryTest('chemistry')" class="glass-card p-5 rounded-2xl cursor-pointer bounce-hover border-l-4 border-l-emerald-500 custom-shadow group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-vial"></i>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full font-medium">เคมี</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">วิทยาศาสตร์กายภาพ (เคมี)</h4>
+                        <p class="text-xs text-slate-500 mb-3">สารและสมบัติของสาร, ปฏิกิริยาเคมี</p>
+                        <div class="flex items-center justify-between text-xs font-semibold text-emerald-600">
+                            <span>ฝึกทำโจทย์</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <!-- Category Card 3: Biology -->
+                    <div onclick="startCategoryTest('biology')" class="glass-card p-5 rounded-2xl cursor-pointer bounce-hover border-l-4 border-l-rose-500 custom-shadow group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-dna"></i>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 bg-rose-50 text-rose-600 rounded-full font-medium">ชีววิทยา</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">วิทยาศาสตร์ชีวภาพ</h4>
+                        <p class="text-xs text-slate-500 mb-3">สิ่งมีชีวิต, เซลล์, พันธุกรรม, ระบบนิเวศ</p>
+                        <div class="flex items-center justify-between text-xs font-semibold text-rose-600">
+                            <span>ฝึกทำโจทย์</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <!-- Category Card 4: Earth & Space -->
+                    <div onclick="startCategoryTest('earth')" class="glass-card p-5 rounded-2xl cursor-pointer bounce-hover border-l-4 border-l-amber-500 custom-shadow group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-user-astronaut"></i>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 bg-amber-50 text-amber-600 rounded-full font-medium">โลกและอวกาศ</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">วิทยาศาสตร์โลก และอวกาศ</h4>
+                        <p class="text-xs text-slate-500 mb-3">ธรณีวิทยา, การเปลี่ยนแปลงภูมิอากาศ, ดาราศาสตร์</p>
+                        <div class="flex items-center justify-between text-xs font-semibold text-amber-600">
+                            <span>ฝึกทำโจทย์</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Features -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                <div class="p-4 rounded-2xl bg-sky-50 border border-sky-100 flex items-start gap-3">
+                    <div class="p-2.5 bg-sky-500 text-white rounded-xl">
+                        <i class="fa-solid fa-stopwatch text-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-slate-800 text-sm">จำลองเวลาจริง</h5>
+                        <p class="text-xs text-slate-600">มีตัวจับเวลาช่วยฝึกการบริหารเวลาสอบจริงได้อย่างมีประสิทธิภาพ</p>
+                    </div>
+                </div>
+                <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-start gap-3">
+                    <div class="p-2.5 bg-indigo-500 text-white rounded-xl">
+                        <i class="fa-solid fa-brain text-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-slate-800 text-sm">วิเคราะห์รายบุคคล</h5>
+                        <p class="text-xs text-slate-600">คำนวณเปอร์เซ็นต์ความเข้าใจแต่ละเรื่องเพื่อค้นหาจุดอ่อน</p>
+                    </div>
+                </div>
+                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-start gap-3">
+                    <div class="p-2.5 bg-emerald-500 text-white rounded-xl">
+                        <i class="fa-solid fa-lightbulb text-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-slate-800 text-sm">แนะนำตรงจุด</h5>
+                        <p class="text-xs text-slate-600">มีคำแนะนำการอ่านหนังสือทบทวนตามผลการทดสอบเฉพาะคุณ</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- VIEW 2: QUIZ / TEST MODE -->
+        <section id="view-quiz" class="hidden space-y-6">
+            <!-- Top Progress & Timer Bar -->
+            <div class="glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <button onclick="confirmExitQuiz()" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100">
+                        <i class="fa-solid fa-chevron-left text-lg"></i>
+                    </button>
+                    <div>
+                        <span id="quiz-title-badge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-700">แบบทดสอบรวม</span>
+                        <h3 class="font-bold text-slate-800 text-base" id="quiz-progress-text">ข้อที่ 1 จาก 10</h3>
+                    </div>
+                </div>
+
+                <!-- Timer -->
+                <div class="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-xl font-mono font-bold text-sm border border-amber-200">
+                    <i class="fa-solid fa-clock"></i>
+                    <span id="quiz-timer">00:00</span>
+                </div>
+            </div>
+
+            <!-- Quiz Question Card -->
+            <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6 relative border-t-4 border-t-sky-500">
+                <!-- Question Category Badge -->
+                <div class="flex justify-between items-center">
+                    <span id="question-cat-tag" class="px-3 py-1 bg-sky-100 text-sky-700 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-tag"></i> ชีววิทยา
+                    </span>
+                    <span id="question-topic-tag" class="text-xs text-slate-500 font-medium">เรื่อง: พันธุศาสตร์</span>
+                </div>
+
+                <!-- Question Prompt -->
+                <div class="text-slate-800 font-semibold text-lg sm:text-xl leading-relaxed" id="question-text">
+                    กำลังโหลดข้อสอบ...
+                </div>
+
+                <!-- Answer Options Container -->
+                <div class="grid grid-cols-1 gap-3 pt-2" id="options-container">
+                    <!-- Options injected via JS -->
+                </div>
+
+                <!-- Action Controls -->
+                <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                    <button id="prev-btn" onclick="prevQuestion()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> ข้อก่อนหน้า
+                    </button>
+                    <button id="next-btn" onclick="nextQuestion()" class="px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-sm shadow-md transition">
+                        ข้อถัดไป <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- VIEW 3: RESULT & WEAKNESS DASHBOARD -->
+        <section id="view-dashboard" class="hidden space-y-6">
+            <!-- Header Summary Banner -->
+            <div class="glass-card p-6 rounded-3xl bg-gradient-to-br from-white to-sky-50 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-2 text-center md:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">
+                        <i class="fa-solid fa-check-circle"></i> สรุปผลประเมินล่าสุด
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">แดชบอร์ดวิเคราะห์จุดอ่อน</h2>
+                    <p class="text-sm text-slate-500">ผลการประเมินเพื่อช่วยให้คุณปรับปรุงแผนการเรียนรู้อย่างตรงจุด</p>
+                </div>
+
+                <!-- Total Score Circle Display -->
+                <div class="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="relative flex items-center justify-center w-20 h-20 rounded-full bg-sky-50 border-4 border-sky-400">
+                        <span class="text-2xl font-black text-sky-600" id="total-score-text">0/0</span>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 font-semibold">คะแนนรวมที่ได้</div>
+                        <div class="text-lg font-bold text-slate-800" id="total-percent-text">0%</div>
+                        <div class="text-xs font-medium text-slate-500" id="grade-eval-text">กำลังประเมิน...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weakness Chart & Category Analysis -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Radar / Bar Chart Card -->
+                <div class="glass-card p-6 rounded-3xl flex flex-col justify-between">
+                    <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-radar text-sky-500"></i> แผนภูมิวิเคราะห์ความเชี่ยวชาญรายหมวด
+                    </h3>
+                    <div class="w-full flex-grow flex items-center justify-center min-h-[250px]">
+                        <canvas id="weaknessChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-400 text-center mt-3">กราฟแสดงเปอร์เซ็นต์ความถูกต้องของแต่ละสาระวิชา</p>
+                </div>
+
+                <!-- Detailed Breakdown List -->
+                <div class="glass-card p-6 rounded-3xl space-y-4">
+                    <h3 class="font-bold text-slate-800 text-base flex items-center justify-between">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-list-check text-purple-500"></i> ผลตอบแยกตามสาระวิชา</span>
+                        <span class="text-xs text-slate-400 font-normal">เรียงจากจุดอ่อนที่สุด</span>
+                    </h3>
+
+                    <div id="category-breakdown-list" class="space-y-3">
+                        <!-- Dynamic Progress Bars Injected Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weakness Analysis & Advice Box -->
+            <div class="glass-card p-6 rounded-3xl border-l-8 border-l-amber-400 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-lg">ข้อสรุปจุดอ่อนและคำแนะนำการอ่านหนังสือ</h4>
+                        <p class="text-xs text-slate-500">คำแนะนำเฉพาะบุคคลอ้างอิงจากผลควิซล่าสุด</p>
+                    </div>
+                </div>
+
+                <div id="weakness-advice-content" class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 text-slate-700 text-sm space-y-3">
+                    <!-- Detailed Advice injected via JS -->
+                </div>
+            </div>
+
+            <!-- Action Buttons Footer -->
+            <div class="flex flex-wrap gap-3 justify-center pt-2">
+                <button onclick="startFullTest()" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl shadow-md transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> ทำแบบทดสอบอีกครั้ง
+                </button>
+                <button onclick="showAnswersModal()" class="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-2xl hover:bg-slate-50 transition flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-emerald-500"></i> ดูเฉลยละเอียดทุกข้อ
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Detailed Answers Review -->
+    <div id="answers-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-square-check text-emerald-500"></i> เฉลยอย่างละเอียด
+                </h3>
+                <button onclick="closeAnswersModal()" class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 hover:bg-slate-300 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div id="answers-modal-content" class="p-6 overflow-y-auto space-y-6">
+                <!-- Answer Item List Injected Here -->
+            </div>
+
+            <div class="p-4 border-t border-slate-100 bg-slate-50 text-right">
+                <button onclick="closeAnswersModal()" class="px-5 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-sm">
+                    ปิดหน้านี้
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2 font-medium text-slate-600">
+                <i class="fa-solid fa-graduation-cap text-sky-500"></i>
+                <span>สื่อเพื่อการศึกษา O-NET วิทยาศาสตร์ ม.3 / ม.6</span>
+            </div>
+            <p>© 2026 O-NET Sci-Master - พัฒนาขึ้นเพื่อส่งเสริมการเรียนรู้ของนักเรียนไทย</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Question Bank Data
+        const questionBank = [
+            // Physics
+            {
+                id: 1,
+                category: 'physics',
+                categoryName: 'ฟิสิกส์',
+                topic: 'แรงและการเคลื่อนที่',
+                question: 'โยกวัตถุมวล 2 กิโลกรัม บนพื้นราบลื่นด้วยแรงคงที่ 10 นิวตัน วัตถุจะเคลื่อนที่ด้วยความเร่งเท่าใด?',
+                options: [
+                    '2 เมตร/วินาที²',
+                    '5 เมตร/วินาที²',
+                    '10 เมตร/วินาที²',
+                    '20 เมตร/วินาที²'
+                ],
+                answer: 1, // Index 1 = 5 m/s²
+                explanation: 'ใช้สูตร กฎข้อที่สองของนิวตัน F = ma -> a = F/m = 10 / 2 = 5 m/s²'
+            },
+            {
+                id: 2,
+                category: 'physics',
+                categoryName: 'ฟิสิกส์',
+                topic: 'พลังงานไฟฟ้า',
+                question: 'เครื่องใช้ไฟฟ้าขนาด 1,000 วัตต์ เปิดใช้งานเป็นเวลา 3 ชั่วโมง จะบริโภคพลังงานไฟฟ้ากี่ยูนิต (หน่วย)?',
+                options: [
+                    '1 ยูนิต',
+                    '3 ยูนิต',
+                    '30 ยูนิต',
+                    '300 ยูนิต'
+                ],
+                answer: 1, // 3 Units
+                explanation: 'พลังงานไฟฟ้า (ยูนิต) = (กำลังไฟฟ้า (วัตต์) x เวลา (ชั่วโมง)) / 1000 -> (1000 x 3) / 1000 = 3 ยูนิต'
+            },
+            {
+                id: 3,
+                category: 'physics',
+                categoryName: 'ฟิสิกส์',
+                topic: 'คลื่นและแสง',
+                question: 'ปรากฏการณ์ใดที่ทำให้เราเห็นหลอดดูดน้ำดูหักงอเมื่ออยู่ในแก้วน้ำ?',
+                options: [
+                    'การสะท้อนของแสง',
+                    'การหักเหของแสง',
+                    'การแทรกสอดของแสง',
+                    'การเลี้ยวเบนของแสง'
+                ],
+                answer: 1, // การหักเห
+                explanation: 'เกิดจากการหักเหของแสงเมื่อเดินทางผ่านตัวกลางต่างชนิดกัน (อากาศและน้ำ) ที่มีความหนาแน่นต่างกัน'
+            },
+
+            // Chemistry
+            {
+                id: 4,
+                category: 'chemistry',
+                categoryName: 'เคมี',
+                topic: 'สมบัติของสารและกรด-เบส',
+                question: 'สารละลายชนิดหนึ่งทดสอบด้วยกระดาษลิตมัสแล้ว เปลี่ยนจากสีน้ำเงินเป็นสีแดง สารนี้ควรมีค่า pH ประมาณเท่าใด?',
+                options: [
+                    'pH = 3 (เป็นกรด)',
+                    'pH = 7 (เป็นกลาง)',
+                    'pH = 10 (เป็นเบส)',
+                    'pH = 14 (เป็นเบสแก่)'
+                ],
+                answer: 0, // pH = 3
+                explanation: 'กระดาษลิตมัสเปลี่ยนจาก น้ำเงิน -> แดง แสดงว่าเป็น "กรด" ซึ่งจะมีค่า pH ต่ำกว่า 7'
+            },
+            {
+                id: 5,
+                category: 'chemistry',
+                categoryName: 'เคมี',
+                topic: 'ตารางธาตุและอะตอม',
+                question: 'อนุภาคในนิวเคลียสของอะตอมประกอบด้วยอนุภาคใดบ้าง?',
+                options: [
+                    'อิเล็กตรอน และ โปรตอน',
+                    'โปรตอน และ นิวตรอน',
+                    'อิเล็กตรอน และ นิวตรอน',
+                    'โปรตอน นิวตรอน และ อิเล็กตรอน'
+                ],
+                answer: 1, // โปรตอนและนิวตรอน
+                explanation: 'นิวเคลียสใจกลางอะตอมประกอบด้วย โปรตอน (ประจุบวก) และ นิวตรอน (ไม่มีประจุ) ส่วนอิเล็กตรอนวิ่งอยู่รอบๆ'
+            },
+
+            // Biology
+            {
+                id: 6,
+                category: 'biology',
+                categoryName: 'ชีววิทยา',
+                topic: 'เซลล์และการทำงาน',
+                question: 'ออร์แกเนลล์ใดในเซลล์พืชทำหน้าที่เป็นแหล่งสร้างพลังงานหลัก (ATP) ให้แก่เซลล์?',
+                options: [
+                    'คลอโรพลาสต์ (Chloroplast)',
+                    'ไรโบโซม (Ribosome)',
+                    'ไมโทคอนเดรีย (Mitochondria)',
+                    'กอลจิบอดี (Golgi body)'
+                ],
+                answer: 2, // ไมโทคอนเดรีย
+                explanation: 'ไมโทคอนเดรีย ทำหน้าที่สลายอาหารระดับเซลล์เพื่อสร้างพลังงาน ATP ส่วนคลอโรพลาสต์ทำหน้าที่สังเคราะห์ด้วยแสง'
+            },
+            {
+                id: 7,
+                category: 'biology',
+                categoryName: 'ชีววิทยา',
+                topic: 'พันธุศาสตร์',
+                question: 'หากพ่อมีหมู่เลือด IAi (หมู่ A แท้/ทางสายพันธุ์) และแม่มีหมู่เลือด IBi (หมู่ B) ลูกที่เกิดมามีโอกาสมีหมู่เลือดใดได้บ้าง?',
+                options: [
+                    'หมู่ A และ B เท่านั้น',
+                    'หมู่ AB เท่านั้น',
+                    'หมู่ O เท่านั้น',
+                    'มีโอกาสเป็นได้ทั้งหมู่ A, B, AB และ O'
+                ],
+                answer: 3, // ได้ทุกหมู่
+                explanation: 'การผสมพันธุศาสตร์ IAi x IBi สามารถได้ลูกที่มีจีโนไทป์: IAIB (AB), IAi (A), IBi (B), และ ii (O) ครบทั้ง 4 หมู่'
+            },
+            {
+                id: 8,
+                category: 'biology',
+                categoryName: 'ชีววิทยา',
+                topic: 'ระบบนิเวศ',
+                question: 'ในสิ่งมีชีวิตในสายใยอาหาร สิ่งมีชีวิตกลุ่มใดที่ได้รับการถ่ายทอดพลังงานในปริมาณน้อยที่สุด?',
+                options: [
+                    'ผู้ผลิต (พืช)',
+                    'ผู้บริโภคลำดับที่ 1 (สัตว์กินพืช)',
+                    'ผู้บริโภคลำดับสูงสุด (ผู้ล่า)',
+                    'ผู้ย่อยสลายสารอินทรีย์'
+                ],
+                answer: 2, // ผู้บริโภคลำดับสูงสุด
+                explanation: 'ตามกฎ 10% ของพลังงาน พลังงานจะลดลงเรื่อยๆ เมื่อผ่านการกินต่อกันเป็นทอดๆ ผู้บริโภคลำดับสูงสุดจึงได้รับพลังงานน้อยที่สุด'
+            },
+
+            // Earth & Space
+            {
+                id: 9,
+                category: 'earth',
+                categoryName: 'โลกและอวกาศ',
+                topic: 'ธรณีภาคและแผ่นเปลือกโลก',
+                question: 'การเคลื่อนที่ของแผ่นเปลือกโลกแบบแยกตัวออกจากกัน (Divergent boundary) มักก่อให้เกิดลักษณะทางธรณีวิทยาใด?',
+                options: [
+                    'เทือกเขาสูงแบบหิมาลัย',
+                    'หุบเขาทรุดและรอยแยกกลางมหาสมุทร',
+                    'หมู่เกาะภูเขาไฟรูปโค้ง',
+                    'รอยเลื่อนตามแนวระดับ'
+                ],
+                answer: 1, // หุบเขาทรุด
+                explanation: 'แผ่นเปลือกโลกแยกออกจากกัน ทำให้เกิดหุบเขาทรุด (Rift Valley) และสันเขากลางมหาสมุทร'
+            },
+            {
+                id: 10,
+                category: 'earth',
+                categoryName: 'โลกและอวกาศ',
+                topic: 'ดาราศาสตร์',
+                question: 'ดาวฤกษ์ที่มีอุณหภูมิพื้นผิวสูงที่สุดจะมีสีของแสงปรากฏเป็นสีใด?',
+                options: [
+                    'สีแดง',
+                    'สีเหลือง',
+                    'สีขาว',
+                    'สีน้ำเงินหรือน้ำเงินแกมขาว'
+                ],
+                answer: 3, // สีน้ำเงิน
+                explanation: 'อุณหภูมิพื้นผิวดาวฤกษ์: สีน้ำเงิน (ร้อนที่สุด > 10,000K) -> สีขาว -> สีเหลือง -> สีแดง (เย็นที่สุด ~ 3,000K)'
+            }
+        ];
+
+        // State Management
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = {}; // { questionId: selectedOptionIndex }
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let myChartInstance = null;
+
+        // Topic Advice Mapping
+        const adviceMapping = {
+            physics: {
+                title: 'วิทยาศาสตร์กายภาพ (ฟิสิกส์)',
+                topics: 'การคำนวณแรง (F=ma), งานและพลังงาน, วงจรไฟฟ้าเบื้องต้น, การหักเหของคลื่นแสง',
+                tips: 'ทบทวนสูตรคำนวณพื้นฐาน ฝึกแปลงหน่วยให้อยู่ในระบบ SI Unit และเน้นทำความเข้าใจวาดภาพทิศทางของแรง'
+            },
+            chemistry: {
+                title: 'วิทยาศาสตร์กายภาพ (เคมี)',
+                topics: 'การทดสอบกรด-เบส, ตารางธาตุ, ตารางอนุภาคมูลฐาน (โปรตอน-นิวตรอน-อิเล็กตรอน), ปฏิกิริยาเคมีในชีวิตประจำวัน',
+                tips: 'เน้นท่องจำสมบัติของธาตุตามกลุ่ม จำการเปลี่ยนสีของอินดิเคเตอร์ และฝึกดุลสมการเคมีง่ายๆ'
+            },
+            biology: {
+                title: 'วิทยาศาสตร์ชีวภาพ',
+                topics: 'หน้าที่ของออร์แกเนลล์ในเซลล์, ตารางการข้ามสายพันธุ์ตารางเมนเดล (หมู่เลือด), สายใยอาหาร และกฎ 10%',
+                tips: 'ทำสรุปเปรียบเทียบความแตกต่างระหว่างเซลล์พืชและสัตว์ เขียนแผนภาพสายใยอาหารเพื่อดูทิศทางการถ่ายทอดพลังงาน'
+            },
+            earth: {
+                title: 'วิทยาศาสตร์โลก และอวกาศ',
+                topics: 'ทฤษฎีแผ่นธรณีแปรสัณฐาน, สีและสเปกตรัมอุณหภูมิดาวฤกษ์, ปรากฏการณ์ลมฟ้าอากาศ',
+                tips: 'เน้นดูรูปภาพและแผนที่ทางธรณีวิทยา จำสเปกตรัมสีดาวฤกษ์เรียงจากร้อนไปเย็น (น้ำเงิน -> ขาว -> เหลือง -> แดง)'
+            }
+        };
+
+        // Navigation Controller
+        function switchView(viewName) {
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Start Quiz Functions
+        function startFullTest() {
+            currentQuestions = [...questionBank];
+            initQuiz('แบบทดสอบ O-NET วิทย์ (ชุดรวม 10 ข้อ)');
+        }
+
+        function startCategoryTest(catKey) {
+            currentQuestions = questionBank.filter(q => q.category === catKey);
+            const catName = adviceMapping[catKey]?.title || 'เฉพาะหมวดวิชา';
+            initQuiz(`แบบทดสอบเน้นย้ำ: ${catName}`);
+        }
+
+        function initQuiz(titleText) {
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            secondsElapsed = 0;
+            
+            document.getElementById('quiz-title-badge').innerText = titleText;
+            switchView('quiz');
+            startTimer();
+            renderQuestion();
+        }
+
+        // Timer Function
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+                const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+                document.getElementById('quiz-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        // Render Current Question
+        function renderQuestion() {
+            const q = currentQuestions[currentQuestionIndex];
+            
+            document.getElementById('quiz-progress-text').innerText = `ข้อที่ ${currentQuestionIndex + 1} จาก ${currentQuestions.length}`;
+            document.getElementById('question-cat-tag').innerHTML = `<i class="fa-solid fa-tag"></i> ${q.categoryName}`;
+            document.getElementById('question-topic-tag').innerText = `เรื่อง: ${q.topic}`;
+            document.getElementById('question-text').innerText = `${currentQuestionIndex + 1}. ${q.question}`;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const selectedOption = userAnswers[q.id];
+
+            q.options.forEach((opt, index) => {
+                const isSelected = selectedOption === index;
+                const optionBtn = document.createElement('button');
+                optionBtn.className = `w-full text-left p-4 rounded-2xl border-2 font-medium transition flex items-center justify-between ${
+                    isSelected 
+                        ? 'border-sky-500 bg-sky-50 text-sky-800 shadow-sm' 
+                        : 'border-slate-200 bg-white hover:border-sky-300 text-slate-700'
+                }`;
+                
+                optionBtn.onclick = () => selectOption(q.id, index);
+                
+                optionBtn.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-7 h-7 rounded-full border-2 flex items-center justify-center font-bold text-xs ${
+                            isSelected ? 'border-sky-500 bg-sky-500 text-white' : 'border-slate-300 text-slate-500'
+                        }">
+                            ${String.fromCharCode(65 + index)}
+                        </div>
+                        <span class="text-sm sm:text-base">${opt}</span>
+                    </div>
+                    ${isSelected ? '<i class="fa-solid fa-circle-check text-sky-500 text-lg"></i>' : ''}
+                `;
+
+                container.appendChild(optionBtn);
+            });
+
+            // Update Navigation Buttons
+            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+            
+            const nextBtn = document.getElementById('next-btn');
+            if (currentQuestionIndex === currentQuestions.length - 1) {
+                nextBtn.innerHTML = 'ส่งแบบทดสอบ <i class="fa-solid fa-check ml-1"></i>';
+                nextBtn.className = "px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-md transition";
+            } else {
+                nextBtn.innerHTML = 'ข้อถัดไป <i class="fa-solid fa-arrow-right ml-1"></i>';
+                nextBtn.className = "px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-sm shadow-md transition";
+            }
+        }
+
+        function selectOption(questionId, optionIndex) {
+            userAnswers[questionId] = optionIndex;
+            renderQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function confirmExitQuiz() {
+            if (confirm('คุณต้องการออกจากแบบทดสอบหรือไม่? (ข้อมูลการตอบปัจจุบันจะถูกยกเลิก)')) {
+                clearInterval(timerInterval);
+                switchView('home');
+            }
+        }
+
+        // Finish Quiz & Compute Results
+        function finishQuiz() {
+            clearInterval(timerInterval);
+
+            // Trigger celebration confetti
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            calculateAndDisplayResults();
+            switchView('dashboard');
+        }
+
+        // Analytics Logic
+        function calculateAndDisplayResults() {
+            let totalCorrect = 0;
+            const catStats = {
+                physics: { total: 0, correct: 0, name: 'ฟิสิกส์' },
+                chemistry: { total: 0, correct: 0, name: 'เคมี' },
+                biology: { total: 0, correct: 0, name: 'ชีววิทยา' },
+                earth: { total: 0, correct: 0, name: 'โลกและอวกาศ' }
+            };
+
+            currentQuestions.forEach(q => {
+                const userAns = userAnswers[q.id];
+                const isCorrect = userAns === q.answer;
+
+                if (catStats[q.category]) {
+                    catStats[q.category].total++;
+                    if (isCorrect) catStats[q.category].correct++;
+                }
+
+                if (isCorrect) totalCorrect++;
+            });
+
+            const totalScore = totalCorrect;
+            const maxScore = currentQuestions.length;
+            const percentage = Math.round((totalScore / maxScore) * 100);
+
+            // Render Overall Score Badge
+            document.getElementById('total-score-text').innerText = `${totalScore}/${maxScore}`;
+            document.getElementById('total-percent-text').innerText = `${percentage}%`;
+
+            let evalText = 'ต้องพยายามอีกนิด!';
+            if (percentage >= 80) evalText = '🌟 ยอดเยี่ยมมาก! พร้อมสอบสุดๆ';
+            else if (percentage >= 50) evalText = '👍 ผ่านเกณฑ์ปานกลาง ทบทวนอีกนิด';
+            document.getElementById('grade-eval-text').innerText = evalText;
+
+            // Render Category Breakdown Bars
+            const breakdownContainer = document.getElementById('category-breakdown-list');
+            breakdownContainer.innerHTML = '';
+
+            const sortedCats = Object.keys(catStats).map(key => {
+                const stat = catStats[key];
+                const pct = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
+                return { key, ...stat, pct };
+            }).sort((a, b) => a.pct - b.pct); // Sort lowest score first (weakness first)
+
+            sortedCats.forEach(item => {
+                if (item.total === 0) return; // Skip if no questions in this quiz
+
+                let barColor = 'bg-rose-500';
+                if (item.pct >= 70) barColor = 'bg-emerald-500';
+                else if (item.pct >= 50) barColor = 'bg-amber-500';
+
+                const div = document.createElement('div');
+                div.className = 'space-y-1 bg-white p-3 rounded-xl border border-slate-100 shadow-sm';
+                div.innerHTML = `
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-slate-700 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full ${barColor}"></span>
+                            ${item.name} (${item.correct}/${item.total} ข้อ)
+                        </span>
+                        <span class="text-slate-600">${item.pct}%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full ${barColor} rounded-full transition-all duration-500" style="width: ${item.pct}%"></div>
+                    </div>
+                `;
+                breakdownContainer.appendChild(div);
+            });
+
+            // Render Weakness Advice
+            const weakestCategory = sortedCats[0];
+            const adviceBox = document.getElementById('weakness-advice-content');
+            
+            if (weakestCategory && weakestCategory.pct < 100) {
+                const adviceInfo = adviceMapping[weakestCategory.key];
+                adviceBox.innerHTML = `
+                    <div class="font-bold text-amber-900 flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye text-rose-500"></i> หมวดที่ควรเร่งทบทวนด่วน: <span class="text-rose-600">${adviceInfo.title}</span> (ความแม่นยำ ${weakestCategory.pct}%)
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        <strong>หัวข้อสำคัญที่ต้องเน้น:</strong> ${adviceInfo.topics}
+                    </p>
+                    <div class="p-3 bg-white rounded-xl border border-amber-200 text-xs text-amber-800 flex items-start gap-2">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mt-0.5"></i>
+                        <span><strong>คำแนะนำจากครูผู้ช่วย:</strong> ${adviceInfo.tips}</span>
+                    </div>
+                `;
+            } else {
+                adviceBox.innerHTML = `
+                    <div class="font-bold text-emerald-800 flex items-center gap-2">
+                        <i class="fa-solid fa-award text-emerald-500"></i> คุณทำผลงานได้อย่างยอดเยี่ยมในทุกหมวด!
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-600">
+                        คุณมีความเข้าใจในเนื้อหาวิทยาศาสตร์ O-NET ทั้งหมดเป็นอย่างดี แนะนำให้ลองฝึกทำโจทย์จับเวลาจริงเพื่อเพิ่มความแม่นยำและความเร็วเพิ่มเติมครับ
+                    </p>
+                `;
+            }
+
+            // Render Radar Chart
+            renderWeaknessChart(catStats);
+        }
+
+        // Render Chart.js
+        function renderWeaknessChart(catStats) {
+            const ctx = document.getElementById('weaknessChart').getContext('2d');
+            
+            if (myChartInstance) {
+                myChartInstance.destroy();
+            }
+
+            const labels = Object.values(catStats).map(c => c.name);
+            const dataValues = Object.values(catStats).map(c => c.total > 0 ? Math.round((c.correct / c.total) * 100) : 0);
+
+            myChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'เปอร์เซ็นต์ความถูกต้อง (%)',
+                        data: dataValues,
+                        backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                        borderColor: '#0284c7',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#0369a1',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#0369a1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#f1f5f9' },
+                            pointLabels: {
+                                font: { family: 'Prompt', size: 12, weight: 'bold' },
+                                color: '#334155'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { stepSize: 20, display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Show Detailed Answers Modal
+        function showAnswersModal() {
+            const modalContent = document.getElementById('answers-modal-content');
+            modalContent.innerHTML = '';
+
+            currentQuestions.forEach((q, index) => {
+                const userChoice = userAnswers[q.id];
+                const isCorrect = userChoice === q.answer;
+
+                const card = document.createElement('div');
+                card.className = `p-5 rounded-2xl border-2 space-y-3 ${
+                    isCorrect ? 'border-emerald-200 bg-emerald-50/30' : 'border-rose-200 bg-rose-50/30'
+                }`;
+
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    let optStyle = 'text-slate-600';
+                    let icon = '';
+
+                    if (optIdx === q.answer) {
+                        optStyle = 'text-emerald-700 font-bold bg-emerald-100/70 p-2 rounded-lg';
+                        icon = '<i class="fa-solid fa-check text-emerald-600 ml-2"></i> (คำตอบที่ถูกต้อง)';
+                    }
+                    if (userChoice === optIdx && !isCorrect) {
+                        optStyle = 'text-rose-700 font-bold bg-rose-100/70 p-2 rounded-lg';
+                        icon = '<i class="fa-solid fa-xmark text-rose-600 ml-2"></i> (คำตอบของคุณ)';
+                    }
+
+                    optionsHTML += `
+                        <div class="text-sm ${optStyle}">
+                            ${String.fromCharCode(65 + optIdx)}. ${opt} ${icon}
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                            isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                        }">
+                            ข้อ ${index + 1} - ${isCorrect ? 'ถูกต้อง ✓' : 'ตอบผิด ✗'}
+                        </span>
+                        <span class="text-xs text-slate-400 font-medium">${q.categoryName} (${q.topic})</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-base">${q.question}</h4>
+                    <div class="space-y-1.5 py-1">
+                        ${optionsHTML}
+                    </div>
+                    <div class="p-3 bg-white/80 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
+                        <span class="font-bold text-sky-600 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-info"></i> คำอธิบายเพิ่มเติม:
+                        </span>
+                        <p>${q.explanation}</p>
+                    </div>
+                `;
+
+                modalContent.appendChild(card);
+            });
+
+            document.getElementById('answers-modal').classList.remove('hidden');
+        }
+
+        function closeAnswersModal() {
+            document.getElementById('answers-modal').classList.add('hidden');
+        }
+
+        // Initialize App on load
+        window.onload = function() {
+            switchView('home');
+        };
+    </script>
+</body>
+</html>
